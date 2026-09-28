@@ -1,0 +1,54 @@
+{
+  "model_name": "AeroTwin Edge MLP",
+  "model_type": "MLPClassifier",
+  "purpose": "Compact edge fault classification",
+  "architecture": {
+    "input_features": 14,
+    "hidden_layers": [
+      32,
+      16
+    ],
+    "output_classes": 7,
+    "activation": "relu"
+  },
+  "dataset": {
+    "total_rows": 42000,
+    "development_rows": 33600,
+    "test_rows": 8400,
+    "scenarios": 350,
+    "scenario_leakage_protection": true
+  },
+  "features": [
+    "altitude_m",
+    "ambient_temp_c",
+    "ambient_pressure_kpa",
+    "throttle",
+    "rpm",
+    "map_kpa",
+    "engine_load",
+    "power_kw",
+    "fuel_flow_lph",
+    "cht_c",
+    "egt_c",
+    "oil_pressure_kpa",
+    "oil_temperature_c",
+    "vibration_g"
+  ],
+  "classes": [
+    "bearing_degradation",
+    "cooling_degradation",
+    "fuel_restriction",
+    "misfire",
+    "normal",
+    "oil_pressure_degradation",
+    "sensor_drift"
+  ],
+  "metrics": {
+    "accuracy": 0.9003571428571429,
+    "macro_f1": 0.8999854496532737
+  },
+  "random_state": 42,
+  "status": "EDGE_CANDIDATE",
+  "baseline_model": "fault_classifier_v9",
+  "deployment_target": "Qualcomm AI Hub / Snapdragon"
+}
