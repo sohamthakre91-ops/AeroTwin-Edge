@@ -1,0 +1,415 @@
+{
+  "model_version": "fault_classifier_v9",
+  "timestamp": "2026-09-28 21:44:01",
+  "status": "ACTIVE/FROZEN",
+  "is_frozen": true,
+  "selected_model_name": "HistGradientBoosting (150 iter, depth 12, leaf 15, lr 0.08)",
+  "model_type": "HistGradientBoostingClassifier",
+  "hyperparameters": {
+    "max_iter": 150,
+    "max_depth": 12,
+    "min_samples_leaf": 15,
+    "learning_rate": 0.08,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "dataset_description": "Physics-informed synthetic benchmark",
+  "leakage_protection": "Scenario-group leakage protected (train/val/test scenario sets disjoint)",
+  "random_state": 42,
+  "total_dataset_size": 42000,
+  "number_of_scenarios": 350,
+  "development_size": 33600,
+  "development_scenarios_count": 280,
+  "development_percentage": 80.0,
+  "final_test_size": 8400,
+  "final_test_scenarios_count": 70,
+  "final_test_percentage": 20.0,
+  "number_of_cv_folds": 5,
+  "cv_strategy": "StratifiedGroupKFold(n_splits=5)",
+  "primary_selection_metric": "CV Macro F1",
+  "model_comparison": [
+    {
+      "candidate_name": "HistGradientBoosting (150 iter, depth 12, leaf 15, lr 0.08)",
+      "model_type": "HistGradientBoostingClassifier",
+      "hyperparameters": {
+        "max_iter": 150,
+        "max_depth": 12,
+        "min_samples_leaf": 15,
+        "learning_rate": 0.08,
+        "class_weight": "balanced",
+        "random_state": 42
+      },
+      "cv_macro_f1_mean": 0.8174,
+      "cv_macro_f1_std": 0.0217,
+      "cv_accuracy_mean": 0.8183,
+      "cv_precision_macro_mean": 0.8238,
+      "cv_recall_macro_mean": 0.8183,
+      "cv_weighted_f1_mean": 0.8174,
+      "is_selected": true
+    },
+    {
+      "candidate_name": "HistGradientBoosting (100 iter, depth 8, leaf 20, lr 0.10)",
+      "model_type": "HistGradientBoostingClassifier",
+      "hyperparameters": {
+        "max_iter": 100,
+        "max_depth": 8,
+        "min_samples_leaf": 20,
+        "learning_rate": 0.1,
+        "class_weight": "balanced",
+        "random_state": 42
+      },
+      "cv_macro_f1_mean": 0.8141,
+      "cv_macro_f1_std": 0.0251,
+      "cv_accuracy_mean": 0.8149,
+      "cv_precision_macro_mean": 0.8201,
+      "cv_recall_macro_mean": 0.8149,
+      "cv_weighted_f1_mean": 0.8141,
+      "is_selected": false
+    },
+    {
+      "candidate_name": "Random Forest (250 trees, depth None, leaf 5)",
+      "model_type": "RandomForestClassifier",
+      "hyperparameters": {
+        "n_estimators": 250,
+        "max_depth": null,
+        "min_samples_leaf": 5,
+        "class_weight": "balanced",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "cv_macro_f1_mean": 0.7877,
+      "cv_macro_f1_std": 0.0299,
+      "cv_accuracy_mean": 0.7867,
+      "cv_precision_macro_mean": 0.7966,
+      "cv_recall_macro_mean": 0.7867,
+      "cv_weighted_f1_mean": 0.7877,
+      "is_selected": false
+    },
+    {
+      "candidate_name": "Random Forest (250 trees, depth 14, leaf 3)",
+      "model_type": "RandomForestClassifier",
+      "hyperparameters": {
+        "n_estimators": 250,
+        "max_depth": 14,
+        "min_samples_leaf": 3,
+        "class_weight": "balanced",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "cv_macro_f1_mean": 0.7822,
+      "cv_macro_f1_std": 0.0342,
+      "cv_accuracy_mean": 0.7804,
+      "cv_precision_macro_mean": 0.7909,
+      "cv_recall_macro_mean": 0.7804,
+      "cv_weighted_f1_mean": 0.7822,
+      "is_selected": false
+    },
+    {
+      "candidate_name": "Random Forest (150 trees, depth 10, leaf 3)",
+      "model_type": "RandomForestClassifier",
+      "hyperparameters": {
+        "n_estimators": 150,
+        "max_depth": 10,
+        "min_samples_leaf": 3,
+        "class_weight": "balanced",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "cv_macro_f1_mean": 0.7533,
+      "cv_macro_f1_std": 0.0418,
+      "cv_accuracy_mean": 0.75,
+      "cv_precision_macro_mean": 0.7656,
+      "cv_recall_macro_mean": 0.75,
+      "cv_weighted_f1_mean": 0.7533,
+      "is_selected": false
+    }
+  ],
+  "selected_cv_fold_metrics": [
+    {
+      "accuracy": 0.8292,
+      "precision_macro": 0.8391,
+      "recall_macro": 0.8292,
+      "f1_macro": 0.8324,
+      "f1_weighted": 0.8324,
+      "fold": 1,
+      "train_scenarios": 224,
+      "val_scenarios": 56,
+      "train_samples": 26880,
+      "val_samples": 6720
+    },
+    {
+      "accuracy": 0.7808,
+      "precision_macro": 0.7837,
+      "recall_macro": 0.7808,
+      "f1_macro": 0.7807,
+      "f1_weighted": 0.7807,
+      "fold": 2,
+      "train_scenarios": 224,
+      "val_scenarios": 56,
+      "train_samples": 26880,
+      "val_samples": 6720
+    },
+    {
+      "accuracy": 0.8155,
+      "precision_macro": 0.8227,
+      "recall_macro": 0.8155,
+      "f1_macro": 0.8079,
+      "f1_weighted": 0.8079,
+      "fold": 3,
+      "train_scenarios": 224,
+      "val_scenarios": 56,
+      "train_samples": 26880,
+      "val_samples": 6720
+    },
+    {
+      "accuracy": 0.843,
+      "precision_macro": 0.8445,
+      "recall_macro": 0.843,
+      "f1_macro": 0.8431,
+      "f1_weighted": 0.8431,
+      "fold": 4,
+      "train_scenarios": 224,
+      "val_scenarios": 56,
+      "train_samples": 26880,
+      "val_samples": 6720
+    },
+    {
+      "accuracy": 0.8229,
+      "precision_macro": 0.8291,
+      "recall_macro": 0.8229,
+      "f1_macro": 0.8229,
+      "f1_weighted": 0.8229,
+      "fold": 5,
+      "train_scenarios": 224,
+      "val_scenarios": 56,
+      "train_samples": 26880,
+      "val_samples": 6720
+    }
+  ],
+  "selected_cv_mean_metrics": {
+    "accuracy": 0.8183,
+    "precision_macro": 0.8238,
+    "recall_macro": 0.8183,
+    "f1_macro": 0.8174,
+    "f1_weighted": 0.8174
+  },
+  "selected_cv_std_metrics": {
+    "accuracy": 0.0208,
+    "precision_macro": 0.0214,
+    "recall_macro": 0.0208,
+    "f1_macro": 0.0217,
+    "f1_weighted": 0.0217
+  },
+  "final_holdout_metrics": {
+    "accuracy": 0.8869,
+    "precision_macro": 0.8869,
+    "recall_macro": 0.8869,
+    "f1_macro": 0.8864,
+    "f1_weighted": 0.8864
+  },
+  "classification_report": {
+    "bearing_degradation": {
+      "precision": 0.9870354364736387,
+      "recall": 0.9516666666666667,
+      "f1-score": 0.96902842596521,
+      "support": 1200.0
+    },
+    "cooling_degradation": {
+      "precision": 0.9565567176186646,
+      "recall": 0.9908333333333333,
+      "f1-score": 0.9733933688088416,
+      "support": 1200.0
+    },
+    "fuel_restriction": {
+      "precision": 0.7521663778162911,
+      "recall": 0.7233333333333334,
+      "f1-score": 0.7374681393372983,
+      "support": 1200.0
+    },
+    "misfire": {
+      "precision": 0.6867061812023709,
+      "recall": 0.6758333333333333,
+      "f1-score": 0.6812263754724905,
+      "support": 1200.0
+    },
+    "normal": {
+      "precision": 0.8556231003039514,
+      "recall": 0.9383333333333334,
+      "f1-score": 0.8950715421303657,
+      "support": 1200.0
+    },
+    "oil_pressure_degradation": {
+      "precision": 0.9892294946147473,
+      "recall": 0.995,
+      "f1-score": 0.9921063564603241,
+      "support": 1200.0
+    },
+    "sensor_drift": {
+      "precision": 0.9807355516637478,
+      "recall": 0.9333333333333333,
+      "f1-score": 0.9564474807856533,
+      "support": 1200.0
+    },
+    "accuracy": 0.8869047619047619,
+    "macro avg": {
+      "precision": 0.8868646942419158,
+      "recall": 0.886904761904762,
+      "f1-score": 0.8863916698514548,
+      "support": 8400.0
+    },
+    "weighted avg": {
+      "precision": 0.8868646942419159,
+      "recall": 0.8869047619047619,
+      "f1-score": 0.8863916698514548,
+      "support": 8400.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      1142,
+      0,
+      2,
+      1,
+      55,
+      0,
+      0
+    ],
+    [
+      0,
+      1189,
+      0,
+      0,
+      0,
+      0,
+      11
+    ],
+    [
+      1,
+      0,
+      868,
+      318,
+      13,
+      0,
+      0
+    ],
+    [
+      4,
+      0,
+      274,
+      811,
+      105,
+      4,
+      2
+    ],
+    [
+      10,
+      0,
+      0,
+      47,
+      1126,
+      8,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      6,
+      1194,
+      0
+    ],
+    [
+      0,
+      54,
+      10,
+      4,
+      11,
+      1,
+      1120
+    ]
+  ],
+  "feature_importance": [
+    {
+      "feature": "cht_c",
+      "importance": 0.3108
+    },
+    {
+      "feature": "oil_pressure_kpa",
+      "importance": 0.2807
+    },
+    {
+      "feature": "vibration_g",
+      "importance": 0.1948
+    },
+    {
+      "feature": "throttle",
+      "importance": 0.1923
+    },
+    {
+      "feature": "engine_load",
+      "importance": 0.1873
+    },
+    {
+      "feature": "oil_temperature_c",
+      "importance": 0.1418
+    },
+    {
+      "feature": "power_kw",
+      "importance": 0.0939
+    },
+    {
+      "feature": "altitude_m",
+      "importance": 0.0167
+    },
+    {
+      "feature": "rpm",
+      "importance": 0.0126
+    },
+    {
+      "feature": "egt_c",
+      "importance": 0.0098
+    },
+    {
+      "feature": "fuel_flow_lph",
+      "importance": 0.0045
+    },
+    {
+      "feature": "map_kpa",
+      "importance": 0.0038
+    },
+    {
+      "feature": "ambient_pressure_kpa",
+      "importance": 0.0031
+    },
+    {
+      "feature": "ambient_temp_c",
+      "importance": 0.0006
+    }
+  ],
+  "feature_columns": [
+    "altitude_m",
+    "ambient_temp_c",
+    "ambient_pressure_kpa",
+    "throttle",
+    "rpm",
+    "map_kpa",
+    "engine_load",
+    "power_kw",
+    "fuel_flow_lph",
+    "cht_c",
+    "egt_c",
+    "oil_pressure_kpa",
+    "oil_temperature_c",
+    "vibration_g"
+  ],
+  "class_names": [
+    "bearing_degradation",
+    "cooling_degradation",
+    "fuel_restriction",
+    "misfire",
+    "normal",
+    "oil_pressure_degradation",
+    "sensor_drift"
+  ]
+}

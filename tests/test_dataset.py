@@ -6,10 +6,12 @@ scenario grouping, and zero leakage of hidden variables.
 import unittest
 from pathlib import Path
 import pandas as pd
+from sklearn.model_selection import StratifiedGroupKFold, GroupKFold
 
 from src.dataset import (
     FAULT_CLASSES,
     FEATURE_COLUMNS,
+    TARGET_COLUMN,
     generate_scenario_data,
     TELEMETRY_CSV_PATH,
 )
@@ -58,6 +60,28 @@ class TestSyntheticDataset(unittest.TestCase):
         # Scenario IDs present and distinct
         self.assertIn("scenario_id", df.columns)
         self.assertGreaterEqual(df["scenario_id"].nunique(), 350)
+
+    def test_scenario_group_split_zero_leakage(self):
+        """Verify that group-aware splitting guarantees zero scenario overlap."""
+        if not TELEMETRY_CSV_PATH.exists():
+            self.skipTest("telemetry.csv not found")
+
+        df = pd.read_csv(TELEMETRY_CSV_PATH)
+        X = df[FEATURE_COLUMNS]
+        y = df[TARGET_COLUMN]
+        groups = df["scenario_id"]
+
+        # Outer 80/20 split
+        splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+        dev_idx, test_idx = next(splitter.split(X, y, groups=groups))
+
+        dev_scenarios = set(groups.iloc[dev_idx].unique())
+        test_scenarios = set(groups.iloc[test_idx].unique())
+
+        # Explicit verification: development_groups ∩ final_test_groups == empty
+        self.assertEqual(len(dev_scenarios.intersection(test_scenarios)), 0)
+        self.assertAlmostEqual(len(dev_scenarios) / groups.nunique(), 0.80, delta=0.05)
+        self.assertAlmostEqual(len(test_scenarios) / groups.nunique(), 0.20, delta=0.05)
 
 
 if __name__ == "__main__":

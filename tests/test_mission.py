@@ -1,5 +1,5 @@
 """
-Tests for continuous MissionSimulator, 1,200 sample generation, and CSV export.
+Tests for continuous MissionSimulator, 1,200 sample generation, CSV export, and mission gating.
 """
 
 import unittest
@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from src.mission import MissionSimulator, REQUIRED_TELEMETRY_COLUMNS, MISSION_CSV_PATH
+from src.diagnostics import is_model_frozen, get_latest_model_path
 
 
 class TestMissionSimulator(unittest.TestCase):
@@ -44,6 +45,15 @@ class TestMissionSimulator(unittest.TestCase):
         self.assertTrue((df["rpm"] <= 6000.0).all())
         self.assertTrue((df["oil_pressure_kpa"] > 0.0).all())
         self.assertTrue((df["vibration_g"] > 0.0).all())
+
+    def test_mission_gating_frozen_model_check(self):
+        """Verify is_model_frozen returns boolean reflecting actual artifact state."""
+        frozen = is_model_frozen()
+        model_path = get_latest_model_path()
+        if model_path and model_path.exists():
+            self.assertTrue(frozen)
+        else:
+            self.assertFalse(frozen)
 
 
 if __name__ == "__main__":

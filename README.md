@@ -1,302 +1,303 @@
-# AeroTwin-Nemotron: Autonomous UAV Propulsion Health & Mission Assurance
+# AeroTwin-Nemotron: Physics-Informed UAV Propulsion Digital Twin & Autonomous Engineering Investigation
 
-> **Local Engineering Core Build (Phase 1)**  
-> **Physics-Informed Digital Twin • ML Diagnostics • Mission Assurance Platform**  
-> *Target Class: Rotax 915 iS-class Turbocharged UAV Piston Engine*
+> **Offline ML Pipeline • 5-Fold Grouped CV • Model Comparison • Untouched Holdout Test • Frozen Model Gating • Autonomous Engineering Investigation**  
+> *Target Class: Rotax 915 iS-class Turbocharged UAV Piston Engine (104 kW / 140 hp)*
 
 ---
 
 ## 1. Project Overview
 
-**AeroTwin-Nemotron** is a physics-informed digital twin and autonomous mission assurance platform developed for long-endurance unmanned aerial vehicles (UAVs). It provides continuous propulsion health monitoring, progressive stress-induced degradation modeling, real-time multi-channel telemetry synthesis, machine learning fault diagnosis, healthy baseline tracking, counterfactual "what-if" testing, and quantitative mission risk estimation.
+**AeroTwin-Nemotron** is a physics-informed digital twin and autonomous engineering assurance platform for high-altitude, long-endurance (HALE) and tactical unmanned aerial vehicles (UAVs). The system represents a UAV aero piston engine using a physics-informed digital twin, generates realistic multi-channel sensor telemetry, performs offline machine learning fault diagnosis using scenario-group leakage protection, tracks healthy digital twin baselines, executes counterfactual "what-if" virtual experiments, quantifies mission risk, and provides a deterministic tool foundation for future autonomous investigation by NVIDIA Nemotron.
 
-The system is designed to answer three central operational questions:
-1. **What is the current condition of the propulsion system?**
-2. **What physical and statistical evidence supports that assessment?**
-3. **How does that condition impact mission assurance and flight survivability?**
+### Central Architectural Philosophy:
+1. **Model First, Mission Second**: Machine learning models must be developed, cross-validated, selected, evaluated on untouched holdouts, and frozen *before* any mission simulation occurs.
+2. **Zero Data Leakage**: The dataset is organized into cohesive flight scenarios (`scenario_id`). Group-aware splitting guarantees that the same scenario never appears across training, cross-validation, and final holdout sets.
+3. **Mission Simulation is Inference-Only**: Mission telemetry is purely inference and analysis data. It is never automatically labeled "normal" or leaked into the training set.
+4. **Frozen Model Gating**: Mission simulation is strictly gated and will not execute unless an active, frozen baseline model is present.
 
 > [!IMPORTANT]
-> **Safety & Research Disclaimer**: This software is a physics-informed research prototype. It is **NOT** flight-certified, is **NOT** connected to real aircraft systems, and must **NOT** be used to make operational flight or engine control decisions. All telemetry is synthetic.
-
-> [!NOTE]
-> **Future Nemotron Integration**: NVIDIA Nemotron and Nebius Token Factory APIs are **intentionally excluded** from this Local Core Build phase. This build establishes the rigorous deterministic engineering and diagnostic infrastructure that a future Nemotron autonomous agent will inspect through clean, deterministic local tools.
+> **Safety & Research Disclaimer**: This software is a physics-informed research prototype. It is **NOT** flight-certified, is **NOT** connected to real aircraft systems, and must **NOT** be used for real-world aircraft operations or flight control decisions. All telemetry and performance metrics represent a **physics-informed synthetic benchmark**, not real-world UAV flight validation.
 
 ---
 
-## 2. Problem Statement & Operational Significance
+## 2. System Architecture
 
-High-altitude, long-endurance (HALE) and tactical UAVs rely heavily on turbocharged internal combustion engines for propulsion. In uncrewed operations:
-- **Subtle Degradation Precedes Failure**: Failures rarely happen instantaneously. Blocked cooling channels, fuel filter clogging, oil foaming/pressure drop, and bearing race fatigue exhibit slow, subtle trends hidden under atmospheric variations and autopilot throttle adjustments.
-- **Flight Risk from Premature Aborts or Catastrophic Loss**: Unnecessary aborts jeopardize mission objectives, while undetected propulsion degradation risks hull loss or forced landing in contested terrain.
-- **Explainability is Essential**: Flight controllers and autonomous decision-support systems require transparent, quantitative evidence—not black-box assertions.
-
----
-
-## 3. Target System Architecture
-
+```text
++-----------------------------------------------------------------------------------+
+|                        OFFLINE MODEL DEVELOPMENT PIPELINE                         |
++-----------------------------------------------------------------------------------+
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |    Synthetic Benchmark Dataset (42k rows)     |
+                 |      7 Fault Classes • 350 Scenarios          |
+                 +───────────────────────┬───────────────────────+
+                                         │ Group-Aware Split (Zero Leakage)
+                    ┌────────────────────┴────────────────────┐
+                    ▼                                         ▼
+    +───────────────────────────────+         +───────────────────────────────+
+    | 80% Development Data (280 sc) |         | 20% Untouched Holdout (70 sc) |
+    +───────────────┬───────────────+         +───────────────┬───────────────+
+                    │                                         │ (Locked during CV & Selection)
+                    ▼                                         │
+    +───────────────────────────────+                         │
+    |  5-Fold Grouped CV Benchmark  |                         │
+    |  (StratifiedGroupKFold splits)|                         │
+    |  • RandomForestClassifier     |                         │
+    |  • HistGradientBoosting       |                         │
+    +───────────────┬───────────────+                         │
+                    │                                         │
+                    ▼                                         │
+    +───────────────────────────────+                         │
+    |     Model Selection Rule      |                         │
+    |     Highest Mean CV Macro F1  |                         │
+    +───────────────┬───────────────+                         │
+                    │                                         │
+                    ▼                                         │
+    +───────────────────────────────+                         │
+    | Retrain Selected Architecture |                         │
+    |    on ALL Development Data    |                         │
+    +───────────────┬───────────────+                         │
+                    │                                         │
+                    └────────────────────┬────────────────────┘
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |       Single Final Holdout Evaluation         |
+                 |  Accuracy • Precision • Recall • Macro F1     |
+                 |  Confusion Matrix • Feature Importance        |
+                 +───────────────────────┬───────────────────────+
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |               FREEZE MODEL                    |
+                 |  models/fault_classifier_v{N}.joblib          |
+                 |  models/model_metadata_v{N}.json              |
+                 +───────────────────────┬───────────────────────+
+                                         │
+                                         ▼
++-----------------------------------------------------------------------------------+
+|                        ONLINE FLIGHT & INFERENCE PIPELINE                         |
++-----------------------------------------------------------------------------------+
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |            Mission Simulator                  |
+                 |  60 min • 20 Hz / 1,200 samples • Stress Wear |
+                 |  (GATED: Requires Active Frozen ML Model)     |
+                 +───────────────────────┬───────────────────────+
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |          Observable Sensor Telemetry          |
+                 |        14 Channels (No Hidden Variables)      |
+                 +───────┬───────────────┼───────────────┬───────+
+                         │               │               │
+                         ▼               ▼               ▼
+                 +---------------+ +-----------+ +---------------+
+                 |   Frozen ML   | |  Healthy  | | Trend & Window|
+                 |  Diagnostics  | | Baseline  | |  Persistence  |
+                 |  (Hypotheses) | | Deviations| |   Analysis    |
+                 +───────┬───────+ +─────┬─────+ +───────┬───────+
+                         │               │               │
+                         └───────────────┼───────────────┘
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |      Counterfactual What-If Experiments       |
+                 |      & Mission Assurance Risk (0-100)         |
+                 +───────────────────────┬───────────────────────+
+                                         │
+                                         ▼
+                 +───────────────────────────────────────────────+
+                 |       FUTURE: NVIDIA NEMOTRON AGENT           |
+                 |  Observe -> Diagnose -> Simulate -> Explain   |
+                 |  -> Evidence Synthesis -> Human Approval      |
+                 +───────────────────────────────────────────────+
 ```
-                       +-------------------------------+
-                       |     Mission Configuration     |
-                       | (Altitude, Throttle, Duration)|
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       |       Mission Profile         |
-                       |  (Climb, Cruise, Ingress/RTB) |
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       |     ISA Atmosphere Model      |
-                       |    (T_amb, P_amb, Density)    |
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       | Turbocharged Aero Digital Twin|
-                       |  (Rotax 915 iS Physics Model) |
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       | Autonomous Hidden Degradation |
-                       | (Stress Wear: Cooling, Oil,   |
-                       |   Fuel, Bearing, Sensors)     |
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       |   Synthetic Sensor Modeling   |
-                       | (Gaussian Noise, Bias, Drift) |
-                       +---------------+---------------+
-                                       |
-                                       v
-                       +-------------------------------+
-                       |  ONE AUTHORITATIVE TELEMETRY  |
-                       |         MISSION STATE         |
-                       +-------+---+-------+---+-------+
-                               |   |       |   |
-            +------------------+   |       |   +------------------+
-            |                      |       |                      |
-            v                      v       v                      v
-     +--------------+      +-----------+ +------------+   +---------------+
-     | Trend Engine |      | Baseline  | | ML Fault   |   | Mission Risk  |
-     | (Slopes,     |      | Comparator| | Classifier |   | Assurance     |
-     |  Persistence)|      | (Healthy) | | (14 Feats) |   | (0-100 Score) |
-     +-------+------+      +-----+-----+ +-----+------+   +-------+-------+
-             |                   |             |                  |
-             +-------------------+------+------+------------------+
-                                        |
-                                        v
-                       +-------------------------------+
-                       |  Streamlit Tactical Dashboard |
-                       |  & Local Tools (Future API)   |
-                       +-------------------------------+
-```
 
 ---
 
-## 4. Engineering & Physical Models
+## 3. Digital Twin Physics & Observable Features
 
-All engine constants are centralized in `config/engine_config.json` and loaded through `src/config.py`. Constants are never hardcoded or scattered across modules.
+The Digital Twin simulates a Rotax 915 iS-class 104 kW turbocharged aero piston engine across four physical sub-models:
 
-### 4.1 Engine Specification (Rotax 915 iS-Class)
-- **Engine Type**: Turbocharged, fuel-injected, 4-cylinder, 4-stroke aero piston engine
-- **Displacement**: 1,352 cc
-- **Nominal Max Power**: 104 kW (140 hp) @ 5,800 RPM
-- **Idle / Max RPM**: 1,800 RPM / 6,000 RPM
-- **Compression Ratio**: 8.2 : 1
-- **Service Ceiling / Range**: Up to 12,000 m (nominal cruise 1,000–8,000 m)
+### 3.1 ISA Atmosphere Model (`src/atmosphere.py`)
+Calculates ambient temperature $T_{\text{amb}}$, ambient pressure $P_{\text{amb}}$, and air density $\rho$ strictly obeying the tropospheric barometric lapse rate:
+$$T_{\text{std}}(h) = T_0 - 0.0065 \cdot h, \quad P_{\text{std}}(h) = P_0 \left(\frac{T_{\text{std}}}{T_0}\right)^{5.2561}, \quad \rho(h) = \frac{P_{\text{std}}}{R \cdot T_{\text{std}}}$$
 
-### 4.2 International Standard Atmosphere (ISA) (`src/atmosphere.py`)
-Computes true ambient temperature, ambient pressure, and air density using standard barometric equations and tropospheric temperature lapse rate ($L = 0.0065\text{ K/m}$):
-$$T_{\text{std}}(h) = T_0 - L \cdot h$$
-$$P_{\text{std}}(h) = P_0 \left( \frac{T_{\text{std}}}{T_0} \right)^{\frac{g}{R \cdot L}}$$
-$$\rho(h) = \frac{P_{\text{std}}}{R \cdot (T_{\text{std}} + \Delta T_{\text{offset}})}$$
-The model prevents unphysical independent random variations: altitude rise strictly lowers pressure and density.
+### 3.2 Turbocharger & Manifold Dynamics (`src/twin.py`)
+Dynamic manifold absolute pressure (MAP) compensation with wastegate ceiling limits:
+$$\text{MAP} = \text{clamp}\left( P_{\text{amb}} \cdot (0.35 + 0.65 \cdot \text{Throttle}) + P_{\text{boost}} \cdot (0.20 + 0.80 \cdot \text{Throttle}), 25.0\text{ kPa}, 200.0\text{ kPa} \right)$$
 
-### 4.3 Turbocharger & Manifold Absolute Pressure (MAP) (`src/twin.py`)
-Turbo boost actively compensates for altitude density loss up to the wastegate limit (target boost ~155 kPa, maximum 200 kPa). MAP is dynamically constrained by throttle position and ambient density:
-$$\text{MAP} = \text{clamp}\left( P_{\text{amb}} \cdot (0.35 + 0.65 \cdot \text{Throttle}) + P_{\text{boost}} \cdot (0.20 + 0.80 \cdot \text{Throttle}), 25.0, 200.0 \right)$$
+### 3.3 Thermal Inertia Dynamics
+Cylinder Head Temperature (CHT) and Oil Temperature evolve via first-order thermal inertia:
+$$\text{CHT}_t = \text{CHT}_{t-1} + (1 - e^{-\Delta t / \tau_{\text{cht}}}) (\text{CHT}_{\text{target}} - \text{CHT}_{t-1})$$
 
-### 4.4 Thermal Dynamics & Inertia
-Cylinder Head Temperature (CHT) and Oil Temperature exhibit continuous first-order thermal inertia:
-$$\text{CHT}_{t} = \text{CHT}_{t-1} + \left(1 - e^{-\Delta t / \tau_{\text{cht}}}\right) \left(\text{CHT}_{\text{target}} - \text{CHT}_{t-1}\right)$$
-Target temperatures scale with engine load, ambient temperature, altitude heat dissipation loss, and cooling health degradation.
-
-### 4.5 Lubrication & Vibration
-- **Oil Pressure**: Driven by positive-displacement mechanical pump (proportional to RPM), tempered by thermal viscosity thinnings and lubrication health degradation.
-- **Vibration**: Base structural vibration scales with RPM and load ($0.025\text{–}0.035\text{ g}$). Bearing degradation adds persistent harmonic vibration ($+0.11\text{ g}$ at severe wear), and misfires add cyclic combustion imbalance spikes.
-
----
-
-## 5. Autonomous Hidden Degradation (`src/degradation.py`)
-
-In real operations, faults are not selected from dropdowns; they evolve organically.
-- The mission always begins in a **pristine healthy state** ($1.0$ health across all subsystems).
-- Degradation is driven by an **operating stress function**:
-  $$\text{Stress} = 0.40 \cdot \text{ThrottleStress} + 0.25 \cdot \text{RPMStress} + 0.20 \cdot \text{AltitudeStress} + 0.15 \cdot \text{TempStress}$$
-- Wear accumulates continuously at physical rates calibrated so that trends manifest naturally across the 60-minute mission duration.
-- Observable consequences of specific degradation modes:
-  - **Cooling Degradation**: CHT climbs progressively; thermal recovery after climb slows down.
-  - **Oil Pressure Degradation**: Oil pressure decays while oil temperature rises.
-  - **Bearing Degradation**: High-frequency vibration increases persistently.
-  - **Fuel Restriction**: Delivered fuel flow drops, restricting available power.
-  - **Sensor Drift**: Sensors accumulate bias and drift while underlying physics remains pristine.
-  - **Misfire**: Correlated oscillations in RPM, power dips, and vibration surges.
+### 3.4 Observable Sensor Feature Space (14 Channels)
+The ML classifier strictly consumes observable instrumentation telemetry. Internal health states are never exposed:
+1. `altitude_m`: Barometric altitude (m)
+2. `ambient_temp_c`: Ambient air temperature (°C)
+3. `ambient_pressure_kpa`: Static atmospheric pressure (kPa)
+4. `throttle`: Autopilot throttle command [0.0 - 1.0]
+5. `rpm`: Engine crankshaft rotational speed (RPM)
+6. `map_kpa`: Manifold absolute pressure (kPa)
+7. `engine_load`: Computed engine volumetric load [0.0 - 1.0]
+8. `power_kw`: Effective shaft mechanical power (kW)
+9. `fuel_flow_lph`: Fuel delivery volume flow (L/h)
+10. `cht_c`: Cylinder head temperature (°C)
+11. `egt_c`: Exhaust gas temperature (°C)
+12. `oil_pressure_kpa`: Engine lubrication line pressure (kPa)
+13. `oil_temperature_c`: Sump oil temperature (°C)
+14. `vibration_g`: Mechanical vibration spectral amplitude (g)
 
 ---
 
-## 6. Sensor Simulation Suite (`src/sensors.py`)
+## 4. Synthetic Benchmark Dataset & Group Leakage Protection
 
-No ML model or flight controller observes pure ground truth. The sensor model injects:
-- Realistic Gaussian instrument noise (e.g. $\pm 8\text{ RPM}$, $\pm 0.8^\circ\text{C CHT}$, $\pm 1.5\text{ kPa Oil P}$)
-- Systematic calibration bias
-- Uncalibrated thermal drift accumulation
-- Transient dropout probability
-- Full reproducibility via random seeds
+The benchmark dataset (`data/telemetry.csv`) contains:
+- **Total Records**: 42,000 rows
+- **Scenarios**: 350 cohesive flight scenarios (120 timesteps each, $dt = 0.05\text{ min}$)
+- **Fault Classes (7 Classes, 50 scenarios / 6,000 rows each)**:
+  1. `normal`: Pristine nominal flight operation
+  2. `cooling_degradation`: Radiator/duct restriction resulting in elevated CHT
+  3. `fuel_restriction`: Fuel line restriction restricting fuel flow and power
+  4. `oil_pressure_degradation`: Pump/line wear causing pressure drop and oil heating
+  5. `bearing_degradation`: Mechanical bearing race wear causing harmonic vibration growth
+  6. `sensor_drift`: Instrumentation bias and drift across CHT, EGT, and oil pressure
+  7. `misfire`: Combustion instability causing torque oscillation and power dips
 
-All 14 observable features consumed by the diagnostics pipeline originate from this sensor suite.
-
----
-
-## 7. Machine Learning Diagnostics (`src/diagnostics.py`)
-
-### 7.1 Observable Feature Space (14 Observable Features)
-The ML model strictly receives observable sensor telemetry. Hidden health states are never exposed:
-1. `altitude_m`
-2. `ambient_temp_c`
-3. `ambient_pressure_kpa`
-4. `throttle`
-5. `rpm`
-6. `map_kpa`
-7. `engine_load`
-8. `power_kw`
-9. `fuel_flow_lph`
-10. `cht_c`
-11. `egt_c`
-12. `oil_pressure_kpa`
-13. `oil_temperature_c`
-14. `vibration_g`
-
-### 7.2 Fault Classes (7 Classes)
-1. `normal`
-2. `cooling_degradation`
-3. `fuel_restriction`
-4. `oil_pressure_degradation`
-5. `bearing_degradation`
-6. `sensor_drift`
-7. `misfire`
-
-### 7.3 Model Architecture & Scenario-Wise Validation
-- **Algorithm**: `RandomForestClassifier` (250 estimators, max depth 14, min samples leaf 3, class_weight="balanced")
-- **Scenario-Grouped Split**: `GroupShuffleSplit` (80% train / 20% test by `scenario_id`). Zero scenario overlap prevents time-series data leakage between training and testing folds.
-- **Evaluation**: Held-out accuracy, precision, recall, macro F1, weighted F1, 7x7 confusion matrix, and feature importance rankings.
-- **Model Versioning**: Serialized as `models/fault_classifier_v{N}.joblib` with evaluation metrics recorded in `models/model_metadata.json`.
+### Group-Aware Splitting Guarantee:
+- **80% Development Data**: 280 scenario groups (~33,600 rows)
+- **20% Final Holdout Test Data**: 70 scenario groups (~8,400 rows)
+$$\text{Scenarios}_{\text{dev}} \cap \text{Scenarios}_{\text{holdout}} = \emptyset$$
+$$\text{For every CV fold } k: \quad \text{Scenarios}_{\text{train}, k} \cap \text{Scenarios}_{\text{val}, k} = \emptyset$$
 
 ---
 
-## 8. Analytical & Decision Support Engines
+## 5. Offline Model Development & Comparison
+
+Candidate architectures evaluated across 5-Fold Grouped Cross-Validation on development data:
+- **Model A Candidates (`RandomForestClassifier`)**:
+  - RF-1: 150 trees, max depth 10, min samples leaf 3
+  - RF-2: 250 trees, max depth 14, min samples leaf 3
+  - RF-3: 250 trees, max depth None, min samples leaf 5
+- **Model B Candidates (`HistGradientBoostingClassifier`)**:
+  - HGB-1: 100 iterations, max depth 8, min samples leaf 20, learning rate 0.10
+  - HGB-2: 150 iterations, max depth 12, min samples leaf 15, learning rate 0.08
+
+### Model Selection Metric:
+Primary metric: **CV Macro F1** (Mean across 5 folds).  
+The best candidate configuration is selected strictly on development-set CV performance. The 20% holdout test set is evaluated exactly once after retraining the winner on all 80% development data.
+
+---
+
+## 6. Model Versioning & Frozen Lifecycle
+
+Models are serialized under `models/`:
+- `models/fault_classifier_v{N}.joblib`: Frozen versioned artifact
+- `models/model_metadata_v{N}.json`: Standalone version metadata
+- `models/fault_classifier.joblib`: Active model pointer
+- `models/model_metadata.json`: Central version catalog
+- `models/model_registry.json`: Index catalog
+
+### Model Metadata Schema:
+- `model_version`, `timestamp`, `status: ACTIVE/FROZEN`, `is_frozen: true`
+- `selected_model_name`, `model_type`, `hyperparameters`
+- `total_dataset_size`, `number_of_scenarios`, `development_size`, `final_test_size`
+- `number_of_cv_folds: 5`, `cv_strategy: StratifiedGroupKFold`
+- `model_comparison`: Candidate rankings and scores
+- `selected_cv_fold_metrics`: Per-fold accuracy, precision, recall, macro F1, weighted F1
+- `selected_cv_mean_metrics`, `selected_cv_std_metrics`
+- `final_holdout_metrics`: Final holdout accuracy, precision, recall, macro F1, weighted F1
+- `classification_report`, `confusion_matrix`, `feature_importance`
+
+---
+
+## 7. Mission Simulation & Mission Gating
+
+- **Mission Duration**: 60 minutes
+- **Sampling Rate**: 20 samples/min ($dt = 3.0\text{ s}$) $\rightarrow$ 1,200 telemetry samples
+- **Autonomous Stress Degradation**: No manual fault dropdowns. Internal degradation accumulates smoothly based on operating stress (throttle, RPM, altitude, temperature).
+- **Mission Gating**: Mission simulation is blocked if no valid frozen model exists in `models/`.
+- **Inference Only**: Mission telemetry is recorded in `data/mission_telemetry.csv` and used exclusively for inference, trend analysis, baseline comparison, and risk quantification.
+
+---
+
+## 8. Analytical Engines & Deterministic Tools
 
 ### 8.1 Healthy Baseline Comparator (`src/baseline.py`)
-Generates an ideal reference state for the exact current flight condition ($\text{Alt}, \text{Throttle}$) and computes absolute and percentage deviations for CHT, EGT, Oil Pressure, Oil Temp, Vibration, and Power.
+Compares observed telemetry against a pristine Digital Twin running at identical altitude and throttle. Flags parameter deviations exceeding $\pm 3\%$.
 
-### 8.2 Trend & Anomaly Engine (`src/trends.py`)
-Computes linear regression slopes and statistical window deltas (first 10% vs. last 10% of mission). Signals are flagged as persistent if deviations exceed $2\sigma$ over sustained samples. Outputs system health status:
-- **`NORMAL`**: All parameters tracking within limits.
-- **`MONITORING`**: Early deviations detected; increased observation recommended.
-- **`WARNING`**: Multiple deviations exhibiting statistical persistence.
-- **`CRITICAL`**: Safety thresholds breached (e.g. CHT $> 165^\circ\text{C}$ or Oil Pressure $< 200\text{ kPa}$).
+### 8.2 Trend & Window Analysis Engine (`src/trends.py`)
+Calculates least-squares slopes and compares the early flight window (first 10%) vs. late flight window (last 10%).
 
-### 8.3 Mission Assurance & Risk Engine (`src/risk.py`)
-Fuses thermal stress (30%), lubrication stress (25%), vibration stress (25%), and ML fault probability (20%) into a transparent 0–100 index:
-- **`LOW`** (0–25)
-- **`MODERATE`** (25–50)
-- **`HIGH`** (50–75)
-- **`CRITICAL`** (75–100)
+### 8.3 Counterfactual What-If Explorer (`src/tools.py`)
+Executes virtual experiments (e.g. hypothetical cooling health degradation) and compares hypothetical states with observed telemetry without modifying mission state.
 
-### 8.4 Counterfactual "What-If" Explorer (`src/tools.py`)
-Enables virtual counterfactual experiments: What if cooling health is 0.75? The simulator computes hypothetical telemetry and compares it against observed telemetry, calculating a normalized similarity score and Mean Squared Error.
+### 8.4 Mission Assurance & Risk Engine (`src/risk.py`)
+Computes a heuristic propulsion risk score (0-100) combining thermal stress (30%), lubrication stress (25%), vibration stress (25%), and ML diagnostic factor (20%).
 
 ---
 
-## 9. Deterministic Local Tool Interface (`src/tools.py`)
+## 9. Future NVIDIA Nemotron Agent Architecture
 
-These functions operate entirely locally with no external dependencies or LLM calls:
-```python
-from src.tools import (
-    get_engine_state,
-    get_sensor_history,
-    run_fault_detection,
-    compare_with_baseline,
-    assess_mission_risk,
-    run_what_if_scenario,
-    compare_scenarios,
-)
+NVIDIA Nemotron will not replace the Digital Twin physics, ML classifier, or risk engine. Instead, Nemotron serves as an **Autonomous Engineering Investigation Agent** that orchestrates tools:
 
-# 1. Query observable engine state
-telemetry = get_engine_state(altitude_m=3000.0, throttle=0.75)
-
-# 2. Run local ML fault diagnosis
-diagnosis = run_fault_detection(telemetry)
-
-# 3. Compare with healthy baseline
-baseline_diff = compare_with_baseline(telemetry)
-
-# 4. Assess mission assurance risk
-risk = assess_mission_risk(telemetry, mission_duration_min=60.0)
-
-# 5. Run counterfactual hypothesis test
-what_if = run_what_if_scenario(
-    altitude_m=3000.0,
-    throttle=0.75,
-    cooling_health=0.65,
-    target_telemetry=telemetry,
-)
+```text
+Observe Anomaly
+      ↓
+Diagnose Probabilities (Frozen ML)
+      ↓
+Collect Physical Evidence (Baseline & Trends)
+      ↓
+Formulate Investigation Hypotheses
+      ↓
+Execute Counterfactual Simulations (What-If)
+      ↓
+Synthesize Engineering Explanation
+      ↓
+Submit Structured Advisory for Human Approval
 ```
+
+Deterministic tools available for Nemotron:
+- `get_engine_state(altitude_m, throttle, ...)`
+- `get_sensor_history(limit)`
+- `run_fault_detection(telemetry)`
+- `compare_with_baseline(telemetry)`
+- `run_what_if_scenario(altitude_m, throttle, ...)`
+- `assess_mission_risk(telemetry, ...)`
 
 ---
 
-## 10. Installation & Usage
+## 10. Installation, Testing & Running
 
-### 10.1 Environment Setup
-```powershell
-# Navigate to project directory
-cd D:\aerotwin\AeroTwin-Nemotron
-
-# Activate existing virtual environment
-.\.venv\Scripts\Activate.ps1
-
-# Verify dependencies
-pip install -r requirements.txt
-```
-
-### 10.2 Run Comprehensive Test Suite
+### 10.1 Running Tests
 ```powershell
 python -m unittest discover tests -v
 ```
-All 16 unit tests covering atmosphere physics, digital twin dynamics, sensor noise, 1,200 sample generation, CSV export, dataset integrity, and ML inference pass with zero failures.
+All 19 unit tests verify:
+- Single scenario generation & dataset integrity (42k rows, 7 classes)
+- Zero scenario-group leakage in 80/20 split
+- Zero scenario-group leakage in all 5 CV folds
+- Model comparison & selection by CV Macro F1
+- Retraining on dev set & single final holdout evaluation
+- Model versioning, metadata schema, and frozen inference
+- Mission simulation (1,200 samples) & mission gating
+- Tool outputs & counterfactual comparison
 
-### 10.3 Launch the Streamlit Tactical Dashboard
+### 10.2 Launch Streamlit Application
 ```powershell
 streamlit run app.py
 ```
-Open your browser at `http://localhost:8501`.
+Open browser at `http://localhost:8501`.
 
----
-
-## 11. Verification Checklist
-
-- [x] Default mission produces $\ge 1,200$ samples (60 min @ 20 samples/min)
-- [x] Baseline synthetic dataset contains $\ge 42,000$ rows across 7 classes
-- [x] Exactly 14 observable features utilized (no hidden health leakage)
-- [x] Scenario-wise GroupShuffleSplit prevents train/test data leakage
-- [x] Actual held-out metrics calculated (Accuracy, Macro F1, Weighted F1)
-- [x] Real confusion matrix and feature importances derived from classifier
-- [x] Model versioning registry active in `models/model_metadata.json`
-- [x] Authoritative mission telemetry exported to `data/mission_telemetry.csv`
-- [x] Trend analysis, baseline comparison, and what-if simulation operational
-- [x] Streamlit tactical dark UI launches cleanly with live interactive charts
-- [x] Retraining pipeline supports adding new mission telemetry
-- [x] Zero LLM calls, zero OpenAI/Nebius clients, zero external inference requests
+### Navigation Workflow:
+1. **1. MODEL LAB**: Inspect synthetic benchmark dataset, view 5-fold CV results, compare RF vs HistGradientBoosting, review final holdout test evaluation, and train/freeze models.
+2. **2. MISSION SIMULATOR**: Configure and launch 60-min autonomous mission (gated by frozen model).
+3. **3. LIVE TELEMETRY**: View live multi-channel instrumentation gauges and real-time trajectories.
+4. **4. DIAGNOSTICS**: Inspect frozen ML inference, confidence, and posterior class probability distributions.
+5. **5. BASELINE & TRENDS**: Compare observed telemetry against healthy twin baseline and early vs late windows.
+6. **6. WHAT-IF**: Run counterfactual degraded experiments.
+7. **7. MISSION ASSURANCE**: Quantify heuristic propulsion risk (0-100).
+8. **8. RAW TELEMETRY**: View and export 1,200+ mission samples.
+9. **9. NEMOTRON — FUTURE**: Review agentic investigation architecture and deterministic tool interfaces.

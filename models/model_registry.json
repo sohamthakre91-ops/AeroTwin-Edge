@@ -1,0 +1,16 @@
+{
+  "latest_version": "fault_classifier_v9",
+  "total_versions": 9,
+  "versions": [
+    "fault_classifier_v1",
+    "fault_classifier_v2",
+    "fault_classifier_v3",
+    "fault_classifier_v4",
+    "fault_classifier_v5",
+    "fault_classifier_v6",
+    "fault_classifier_v7",
+    "fault_classifier_v8",
+    "fault_classifier_v9"
+  ],
+  "last_updated": "2026-09-28 21:44:01"
+}

@@ -1,0 +1,351 @@
+{
+  "model_version": "fault_classifier_v6",
+  "timestamp": "2026-09-24 23:08:03",
+  "status": "ACTIVE/FROZEN",
+  "is_frozen": true,
+  "selected_model_name": "Test RF (50 trees, depth 6)",
+  "model_type": "RandomForestClassifier",
+  "hyperparameters": {
+    "n_estimators": 50,
+    "max_depth": 6,
+    "random_state": 42,
+    "n_jobs": 1
+  },
+  "dataset_description": "Physics-informed synthetic benchmark",
+  "leakage_protection": "Scenario-group leakage protected (train/val/test scenario sets disjoint)",
+  "random_state": 42,
+  "total_dataset_size": 700,
+  "number_of_scenarios": 35,
+  "development_size": 560,
+  "development_scenarios_count": 28,
+  "development_percentage": 80.0,
+  "final_test_size": 140,
+  "final_test_scenarios_count": 7,
+  "final_test_percentage": 20.0,
+  "number_of_cv_folds": 5,
+  "cv_strategy": "StratifiedGroupKFold(n_splits=5)",
+  "primary_selection_metric": "CV Macro F1",
+  "model_comparison": [
+    {
+      "candidate_name": "Test RF (50 trees, depth 6)",
+      "model_type": "RandomForestClassifier",
+      "hyperparameters": {
+        "n_estimators": 50,
+        "max_depth": 6,
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "cv_macro_f1_mean": 0.4702,
+      "cv_macro_f1_std": 0.122,
+      "cv_accuracy_mean": 0.5743,
+      "cv_precision_macro_mean": 0.4958,
+      "cv_recall_macro_mean": 0.4629,
+      "cv_weighted_f1_mean": 0.5831,
+      "is_selected": true
+    },
+    {
+      "candidate_name": "Test HGB (30 iter, depth 4)",
+      "model_type": "HistGradientBoostingClassifier",
+      "hyperparameters": {
+        "max_iter": 30,
+        "max_depth": 4,
+        "random_state": 42
+      },
+      "cv_macro_f1_mean": 0.3832,
+      "cv_macro_f1_std": 0.1011,
+      "cv_accuracy_mean": 0.4733,
+      "cv_precision_macro_mean": 0.3978,
+      "cv_recall_macro_mean": 0.3914,
+      "cv_weighted_f1_mean": 0.461,
+      "is_selected": false
+    }
+  ],
+  "selected_cv_fold_metrics": [
+    {
+      "accuracy": 0.7583,
+      "precision_macro": 0.6905,
+      "recall_macro": 0.65,
+      "f1_macro": 0.6598,
+      "f1_weighted": 0.7698,
+      "fold": 1,
+      "train_scenarios": 22,
+      "val_scenarios": 6,
+      "train_samples": 440,
+      "val_samples": 120
+    },
+    {
+      "accuracy": 0.48,
+      "precision_macro": 0.415,
+      "recall_macro": 0.3429,
+      "f1_macro": 0.3639,
+      "f1_weighted": 0.5095,
+      "fold": 2,
+      "train_scenarios": 23,
+      "val_scenarios": 5,
+      "train_samples": 460,
+      "val_samples": 100
+    },
+    {
+      "accuracy": 0.4333,
+      "precision_macro": 0.4057,
+      "recall_macro": 0.3714,
+      "f1_macro": 0.379,
+      "f1_weighted": 0.4421,
+      "fold": 3,
+      "train_scenarios": 22,
+      "val_scenarios": 6,
+      "train_samples": 440,
+      "val_samples": 120
+    },
+    {
+      "accuracy": 0.55,
+      "precision_macro": 0.3651,
+      "recall_macro": 0.3929,
+      "f1_macro": 0.3769,
+      "f1_weighted": 0.5277,
+      "fold": 4,
+      "train_scenarios": 23,
+      "val_scenarios": 5,
+      "train_samples": 460,
+      "val_samples": 100
+    },
+    {
+      "accuracy": 0.65,
+      "precision_macro": 0.6029,
+      "recall_macro": 0.5571,
+      "f1_macro": 0.5712,
+      "f1_weighted": 0.6664,
+      "fold": 5,
+      "train_scenarios": 22,
+      "val_scenarios": 6,
+      "train_samples": 440,
+      "val_samples": 120
+    }
+  ],
+  "selected_cv_mean_metrics": {
+    "accuracy": 0.5743,
+    "precision_macro": 0.4958,
+    "recall_macro": 0.4629,
+    "f1_macro": 0.4702,
+    "f1_weighted": 0.5831
+  },
+  "selected_cv_std_metrics": {
+    "accuracy": 0.1174,
+    "precision_macro": 0.1274,
+    "recall_macro": 0.1196,
+    "f1_macro": 0.122,
+    "f1_weighted": 0.1185
+  },
+  "final_holdout_metrics": {
+    "accuracy": 0.45,
+    "precision_macro": 0.4154,
+    "recall_macro": 0.45,
+    "f1_macro": 0.4081,
+    "f1_weighted": 0.4081
+  },
+  "classification_report": {
+    "bearing_degradation": {
+      "precision": 0.5135135135135135,
+      "recall": 0.95,
+      "f1-score": 0.6666666666666666,
+      "support": 20.0
+    },
+    "cooling_degradation": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 20.0
+    },
+    "fuel_restriction": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1-score": 0.75,
+      "support": 20.0
+    },
+    "misfire": {
+      "precision": 0.9411764705882353,
+      "recall": 0.8,
+      "f1-score": 0.8648648648648649,
+      "support": 20.0
+    },
+    "normal": {
+      "precision": 0.047619047619047616,
+      "recall": 0.05,
+      "f1-score": 0.04878048780487805,
+      "support": 20.0
+    },
+    "oil_pressure_degradation": {
+      "precision": 0.40540540540540543,
+      "recall": 0.75,
+      "f1-score": 0.5263157894736842,
+      "support": 20.0
+    },
+    "sensor_drift": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 20.0
+    },
+    "accuracy": 0.45,
+    "macro avg": {
+      "precision": 0.4153877767323145,
+      "recall": 0.4499999999999999,
+      "f1-score": 0.4080896869728705,
+      "support": 140.0
+    },
+    "weighted avg": {
+      "precision": 0.41538777673231453,
+      "recall": 0.45,
+      "f1-score": 0.40808968697287057,
+      "support": 140.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      19,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      6,
+      0,
+      14
+    ],
+    [
+      0,
+      0,
+      12,
+      1,
+      5,
+      2,
+      0
+    ],
+    [
+      3,
+      0,
+      0,
+      16,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      19,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      5,
+      15,
+      0
+    ],
+    [
+      15,
+      2,
+      0,
+      0,
+      2,
+      1,
+      0
+    ]
+  ],
+  "feature_importance": [
+    {
+      "feature": "oil_pressure_kpa",
+      "importance": 0.1373
+    },
+    {
+      "feature": "vibration_g",
+      "importance": 0.1346
+    },
+    {
+      "feature": "egt_c",
+      "importance": 0.1231
+    },
+    {
+      "feature": "ambient_temp_c",
+      "importance": 0.083
+    },
+    {
+      "feature": "fuel_flow_lph",
+      "importance": 0.0787
+    },
+    {
+      "feature": "throttle",
+      "importance": 0.0759
+    },
+    {
+      "feature": "map_kpa",
+      "importance": 0.0605
+    },
+    {
+      "feature": "engine_load",
+      "importance": 0.0599
+    },
+    {
+      "feature": "altitude_m",
+      "importance": 0.058
+    },
+    {
+      "feature": "power_kw",
+      "importance": 0.0524
+    },
+    {
+      "feature": "rpm",
+      "importance": 0.0488
+    },
+    {
+      "feature": "ambient_pressure_kpa",
+      "importance": 0.0414
+    },
+    {
+      "feature": "cht_c",
+      "importance": 0.0388
+    },
+    {
+      "feature": "oil_temperature_c",
+      "importance": 0.0075
+    }
+  ],
+  "feature_columns": [
+    "altitude_m",
+    "ambient_temp_c",
+    "ambient_pressure_kpa",
+    "throttle",
+    "rpm",
+    "map_kpa",
+    "engine_load",
+    "power_kw",
+    "fuel_flow_lph",
+    "cht_c",
+    "egt_c",
+    "oil_pressure_kpa",
+    "oil_temperature_c",
+    "vibration_g"
+  ],
+  "class_names": [
+    "bearing_degradation",
+    "cooling_degradation",
+    "fuel_restriction",
+    "misfire",
+    "normal",
+    "oil_pressure_degradation",
+    "sensor_drift"
+  ]
+}
